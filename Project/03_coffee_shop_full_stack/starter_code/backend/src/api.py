@@ -31,17 +31,21 @@ db_drop_and_create_all()
 '''
 
 @app.route('/drinks')
-def get_drinks():
-    drinks = Drink.query.all()
-    formatted_drinks = [drink.short() for drink in drinks]
+@requires_auth('get:drinks')
+def get_drinks(payload):
+    try:
+        drinks = Drink.query.all()
 
-    if len(formatted_drinks) == 0:
-           abort(404)
+        if drinks == []:
+            abort(404)
 
-    return jsonify({
-            'success': True,
-            'drinks': formatted_drinks
-        })
+        return jsonify({
+                    "success": True, 
+                    "drinks": [drink.short() for drink in drinks]
+                    }), 200
+    except:
+        abort(422)
+
 
 '''
 @TODO implement endpoint
